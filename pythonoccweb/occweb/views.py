@@ -32,7 +32,7 @@ def showPart(request):
     my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
     my_renderer.DisplayShape(shape)
 #    return HttpResponse(my_renderer.render_to_string())
-    return render(request, "showShape.html")
+    return render(request, "build.html")
 
 
 def showBox(request):
@@ -40,14 +40,14 @@ def showBox(request):
     my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
     my_renderer.DisplayShape(shape)
 #    return HttpResponse(my_renderer.render_to_string())
-    return render(request, "showShape.html")
+    return render(request, "build.html")
 
 def showSphere(request):
     shape = BRepPrimAPI_MakeSphere(5).Shape()
     my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
     my_renderer.DisplayShape(shape)
 #    return HttpResponse(my_renderer.render_to_string())
-    return render(request, "showShape.html")
+    return render(request, "build.html")
 
 def help(request):
     return render(request, 'help.html')
