@@ -5,6 +5,18 @@
 {% block content %}
 <h1 class="text-center">OCC Viewer</h1>
 
-<iframe id="encoder_iframe" class="d-block mx-auto" height="700" width="80%" src="{% url 'showShape' %}">
+<iframe id="encoder_iframe" class="d-block col-10 mx-auto" height="700" width="80%" src="{% url 'showShape' %}">
 </iframe>
+
+<br>
+<div class="d-grid gap-2 col-10 mx-auto">
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="basic-addon1">Введите запрос</span>
+      <input type="text" class="form-control" placeholder="Запрос" aria-label="Username" aria-describedby="basic-addon1">
+  </div>
+</div>
+<br>
+<div class="d-grid gap-2 col-6 mx-auto">
+   <button type="button" class="btn btn-primary btn-lg">Построить</button>
+</div>
 {% endblock %}
