@@ -10,4 +10,6 @@ urlpatterns = [
     path("showBox", views.showBox, name="showBox"),
     path("showSphere", views.showSphere, name="showSphere"),
     path('showShape', TemplateView.as_view(template_name="showShape.html"), name='showShape'),
+    path('inputCode/', views.inputCode, name='inputCode'),
+    path('showCode/<str:code>', views.showCode, name='showCode'),
 ]
