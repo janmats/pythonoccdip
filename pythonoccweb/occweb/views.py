@@ -5,6 +5,7 @@ import g4f.client
 import openai
 
 from g4f.client import Client
+from g4f.Provider import DuckDuckGo
 
 openai.api_key = 'sk-proj-6Nm6M4FP4uGAMeITAN7XT3BlbkFJxYNiozBjWKRz6Nn1EFka'
 openai.base_url = 'http://localhost:1337/v1'
@@ -84,20 +85,22 @@ def help(request):
 
 
 def generate_pythonocc_code(description):
-    client = Client()
+    client = Client(
+        provider=DuckDuckGo
+    )
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user",
              "content": f"Generate code using pythonocc-core library to create a 3D figure described as follows:\n{description}\n. Assign resulted "
-                        f"TopoDS Shape to variable with name = figure. View only code for figure"}
+                        f"TopoDS Shape to variable with name = figure. View only clean code without comments"}
         ]
     )
     pythonocc_code = response.choices[0].message.content
     print(pythonocc_code)
-    pythonocc_clean_code = cleanResponse(pythonocc_code)
-    print(pythonocc_clean_code)
-    return pythonocc_clean_code
+   # pythonocc_clean_code = cleanResponse(pythonocc_code)
+   # print(pythonocc_clean_code)
+    return pythonocc_code
 
 
 def create_3d_shape(code):
