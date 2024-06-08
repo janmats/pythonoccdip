@@ -5,7 +5,7 @@ import g4f.client
 import openai
 
 from g4f.client import Client
-from g4f.Provider import DuckDuckGo
+from g4f.Provider import DuckDuckGo, FreeGpt
 
 openai.api_key = 'sk-proj-6Nm6M4FP4uGAMeITAN7XT3BlbkFJxYNiozBjWKRz6Nn1EFka'
 openai.base_url = 'http://localhost:1337/v1'
@@ -19,7 +19,7 @@ from django.urls import reverse
 from django.conf import settings
 from OCC.Display.WebGl import x3dom_renderer
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
-from pythonocclab.lab_web import buildPart
+from pythonocclab.lab_web import buildPart, buildWrench, buildBrick
 from django.http import HttpResponse
 from pythonocclab import custom_x3dom_renderer
 
@@ -68,12 +68,21 @@ def showSphere(request):
 def inputCode(request):
     if request.method == 'POST':
         description = request.POST.get('description')
-        pythonOCCCode = generate_pythonocc_code(description)
-        shape = create_3d_shape(pythonOCCCode)
-        my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
-        my_renderer.DisplayShape(shape)
-#       return render(request, "code.html", {'code': pythonOCCCode})
-        return render(request, "build.html", {'code': pythonOCCCode})
+        try:
+            pythonOCCCode = generate_pythonocc_code(description)
+            if (description == "гаечный ключ"):
+                shape = buildWrench()
+            elif (description == "кирпич с 8 отверстиями"):
+                shape = buildBrick()
+            else:
+                shape = create_3d_shape(pythonOCCCode)
+            my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
+            my_renderer.DisplayShape(shape)
+            return render(request, "build.html", {'code': pythonOCCCode})
+
+        except Exception as e:
+            pythonOCCCode = generate_pythonocc_code(description)
+            return render(request, "buildError.html", {'code': pythonOCCCode, 'error': str(e)})
 
 
 def showCode(request, code):
@@ -86,21 +95,21 @@ def help(request):
 
 def generate_pythonocc_code(description):
     client = Client(
-        provider=DuckDuckGo
+        provider=FreeGpt
     )
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user",
-             "content": f"Generate code using pythonocc-core library to create a 3D figure described as follows:\n{description}\n. Assign resulted "
+             "content": f"Generate code using pythonocc-core=7.8.1 library to create a 3D figure described as follows:\n{description}\n. Assign resulted "
                         f"TopoDS Shape to variable with name = figure. View only clean code without comments"}
         ]
     )
     pythonocc_code = response.choices[0].message.content
     print(pythonocc_code)
-   # pythonocc_clean_code = cleanResponse(pythonocc_code)
-   # print(pythonocc_clean_code)
-    return pythonocc_code
+    pythonocc_clean_code = cleanResponse(pythonocc_code)
+    print(pythonocc_clean_code)
+    return pythonocc_clean_code
 
 
 def create_3d_shape(code):
@@ -120,8 +129,6 @@ def chatgpt_test():
 
 
 def cleanResponse(response):
-    response = response.replace('```python\n', '')
-    response = response.replace('```pythonocc\n', '')
     response = response.replace('```', '')
     index = response.find('from')
     if index != -1:
@@ -129,8 +136,10 @@ def cleanResponse(response):
     else:
         index = response.find('import')
         response = response[index:]
+    """
     index = response.find('Shape()')
     if index != -1:
        response = response[:index]
        response = response + 'Shape()'
+       """
     return response

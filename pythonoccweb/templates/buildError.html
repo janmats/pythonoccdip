@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}title{% endblock %}
+
+{% block content %}
+<h1 class="text-center">OCC Viewer</h1>
+
+<iframe id="encoder_iframe" class="d-block col-10 mx-auto" height="700" width="80%" src="{% url 'showShape' %}">
+</iframe>
+<br>
+<div class="accordion d-grid gap-2 col-10 mx-auto" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        Code
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <pre><code> {{code}} </code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        Error
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <pre><code> {{error}} </code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

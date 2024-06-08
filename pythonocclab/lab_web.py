@@ -1,5 +1,6 @@
 from math import pi
 
+from OCC.Core.TopoDS import TopoDS_Shape
 from OCC.Core.gp import gp_Pnt2d, gp_XOY, gp_Lin2d, gp_Ax3, gp_Dir2d
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
 from OCC.Core.Geom import Geom_CylindricalSurface
@@ -96,7 +97,62 @@ def buildPart():
     return fuse7
 
 
+def buildWrench():
+    # Создание рукоятки гаечного ключа
+    handle_length = 100.0
+    handle_width = 10.0
+    handle_thickness = 5.0
+    handle = BRepPrimAPI_MakeBox(gp_Pnt(0, 0, 0), handle_length, handle_width, handle_thickness).Shape()
+
+    # Создание головки гаечного ключа
+    head_radius = 10.0
+    head_thickness = 5.0
+    head_position = gp_Pnt(handle_length, handle_width / 2, handle_thickness / 2)
+    head = BRepPrimAPI_MakeCylinder(gp_Ax2(head_position, gp_Dir(0, 1, 0)), head_radius, head_thickness).Shape()
+
+    # Объединение рукоятки и головки
+    fused_shape = BRepAlgoAPI_Fuse(handle, head).Shape()
+
+    # Сохранение результата в переменную figure
+    figure = fused_shape
+
+    return figure
+
+
+def buildBrick():
+    # Создание кирпича (параллелепипеда)
+    brick_length = 100.0
+    brick_width = 200.0
+    brick_height = 50.0
+    brick = BRepPrimAPI_MakeBox(gp_Pnt(0, 0, 0), brick_length, brick_width, brick_height).Shape()
+
+    # Параметры отверстий
+    hole_radius = 10.0
+    hole_height = brick_height
+
+    # Создание и расположение отверстий
+    holes = []
+    hole_rows = 2
+    hole_cols = 4
+    row_spacing = brick_width / (hole_cols + 1)
+    col_spacing = brick_length / (hole_rows + 1)
+
+    for row in range(1, hole_rows + 1):
+        for col in range(1, hole_cols + 1):
+            hole_position = gp_Pnt(row * col_spacing, col * row_spacing, 0)
+            hole = BRepPrimAPI_MakeCylinder(gp_Ax2(hole_position, gp_Dir(0, 0, 1)), hole_radius, hole_height).Shape()
+            holes.append(hole)
+
+    # Вырезание отверстий из кирпича
+    brick_with_holes = brick
+    for hole in holes:
+        brick_with_holes = BRepAlgoAPI_Cut(brick_with_holes, hole).Shape()
+
+    figure = brick_with_holes
+    return figure
+
+
 #    display = threejs_renderer.ThreejsRenderer()
-#    display.DisplayShape(fuse7, color=(1, 0, 0), line_width=1.0)
+#    display.DisplayShape(figure, color=(1, 0, 0), line_width=1.0)
 #    display.render()
 
