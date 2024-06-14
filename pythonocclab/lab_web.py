@@ -2,14 +2,15 @@ from math import pi
 
 import numpy as np
 from OCC.Core.BRep import BRep_Builder
+from OCC.Core.Geom2d import Geom2d_TrimmedCurve
 from OCC.Core.TopAbs import TopAbs_EDGE, TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
-from OCC.Core.gp import gp_Pnt2d, gp_XOY, gp_Lin2d, gp_Ax3, gp_Dir2d, gp_Vec
+from OCC.Core.gp import gp_Pnt2d, gp_XOY, gp_Lin2d, gp_Ax3, gp_Dir2d, gp_Vec, gp_Ax22d, gp_Parab2d
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakePolygon, BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeSolid
 from OCC.Core.Geom import Geom_CylindricalSurface
-from OCC.Core.GCE2d import GCE2d_MakeSegment
+from OCC.Core.GCE2d import GCE2d_MakeSegment, GCE2d_MakeParabola
 
 from OCC.Display.WebGl import threejs_renderer
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse, BRepAlgoAPI_Common
@@ -183,6 +184,21 @@ def buildBoxWithFillet():
     chamfered_box = chamfer.Shape()
     return chamfered_box
 
+def buildParabola():
+    # P is the vertex point
+    # P and D give the axis of symmetry
+    # 6 is the focal length of the parabola
+    a_pnt = gp_Pnt2d(2, 3)
+    a_dir = gp_Dir2d(4, 5)
+    an_ax = gp_Ax22d(a_pnt, a_dir, True)
+    para = gp_Parab2d(an_ax, 6)
+
+    aParabola = GCE2d_MakeParabola(para)
+    gParabola = aParabola.Value()
+
+    aTrimmedCurve = Geom2d_TrimmedCurve(gParabola, -100, 100, True)
+
+    return aTrimmedCurve
 
 
 #    display = threejs_renderer.ThreejsRenderer()

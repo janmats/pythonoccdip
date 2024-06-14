@@ -5,10 +5,9 @@ import g4f.client
 import openai
 
 from g4f.client import Client
-from g4f.Provider import DuckDuckGo, FreeGpt
+from g4f.Provider import DuckDuckGo, FreeGpt, DeepInfra, HuggingFace
 
 openai.api_key = 'sk-proj-6Nm6M4FP4uGAMeITAN7XT3BlbkFJxYNiozBjWKRz6Nn1EFka'
-openai.base_url = 'http://localhost:1337/v1'
 
 from django.views.decorators.clickjacking import xframe_options_exempt
 
@@ -76,6 +75,8 @@ def inputCode(request):
                 shape = buildBrick()
             elif (description == "куб со стороной 10 с фаской"):
                 shape = buildBoxWithFillet()
+            elif (description == "парабола"):
+                shape = buildParabola()
             else:
                 shape = create_3d_shape(pythonOCCCode)
             my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
@@ -96,10 +97,20 @@ def help(request):
 
 
 def generate_pythonocc_code(description):
+    """
     client = Client(
-        provider=DuckDuckGo
+        provider=HuggingFace
     )
     response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user",
+             "content": f"Generate code using pythonocc-core=7.8.1 library to create a 3D figure described as follows:\n{description}\n. Assign resulted "
+                        f"TopoDS Shape to variable with name = figure. View only clean code without comments"}
+        ]
+    )
+    """
+    response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user",
