@@ -5,14 +5,14 @@ from OCC.Core.AIS import AIS_Shape
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
 from OCC.Core.Geom import Geom_CylindricalSurface
 from OCC.Core.GCE2d import GCE2d_MakeSegment
-from pythonocclab.lab_web import buildWrench, buildBrick
+from pythonocclab.lab_web import *
 
 from OCC.Display.SimpleGui import init_display
 
 display, start_display, add_menu, add_function_to_menu = init_display()
 
 
-figure = buildBrick()
+figure = buildBoxWithFillet()
 
 
 display.DisplayShape(figure)

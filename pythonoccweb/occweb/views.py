@@ -19,7 +19,7 @@ from django.urls import reverse
 from django.conf import settings
 from OCC.Display.WebGl import x3dom_renderer
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
-from pythonocclab.lab_web import buildPart, buildWrench, buildBrick
+from pythonocclab.lab_web import *
 from django.http import HttpResponse
 from pythonocclab import custom_x3dom_renderer
 
@@ -74,6 +74,8 @@ def inputCode(request):
                 shape = buildWrench()
             elif (description == "кирпич с 8 отверстиями"):
                 shape = buildBrick()
+            elif (description == "куб со стороной 10 с фаской"):
+                shape = buildBoxWithFillet()
             else:
                 shape = create_3d_shape(pythonOCCCode)
             my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
@@ -95,7 +97,7 @@ def help(request):
 
 def generate_pythonocc_code(description):
     client = Client(
-        provider=FreeGpt
+        provider=DuckDuckGo
     )
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",

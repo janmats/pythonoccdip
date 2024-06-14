@@ -1,15 +1,20 @@
 from math import pi
 
-from OCC.Core.TopoDS import TopoDS_Shape
-from OCC.Core.gp import gp_Pnt2d, gp_XOY, gp_Lin2d, gp_Ax3, gp_Dir2d
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+import numpy as np
+from OCC.Core.BRep import BRep_Builder
+from OCC.Core.TopAbs import TopAbs_EDGE, TopAbs_FACE
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
+from OCC.Core.gp import gp_Pnt2d, gp_XOY, gp_Lin2d, gp_Ax3, gp_Dir2d, gp_Vec
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakePolygon, BRepBuilderAPI_MakeFace, \
+    BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeSolid
 from OCC.Core.Geom import Geom_CylindricalSurface
 from OCC.Core.GCE2d import GCE2d_MakeSegment
 
 from OCC.Display.WebGl import threejs_renderer
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse, BRepAlgoAPI_Common
 from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeFillet, BRepFilletAPI_MakeChamfer
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakePrism
 from OCC.Core.Graphic3d import Graphic3d_NameOfMaterial, Graphic3d_NOM_COPPER, Graphic3d_MaterialAspect
 from OCC.Core.gp import gp_Pnt, gp_Ax2, gp_Dir
 from OCC.Core.AIS import AIS_Shape, AIS_Shaded
@@ -150,6 +155,34 @@ def buildBrick():
 
     figure = brick_with_holes
     return figure
+
+
+def buildBoxWithFillet():
+    # Создание куба со стороной 10
+    length = 10
+    box = BRepPrimAPI_MakeBox(length, length, length).Shape()
+
+    # Создание объекта фаски
+    chamfer = BRepFilletAPI_MakeChamfer(box)
+
+    # Задание параметров фаски (размер фаски)
+    chamfer_size = 1.0
+
+    # Применение фаски ко всем ребрам куба
+    from OCC.Core.TopExp import TopExp_Explorer
+    from OCC.Core.TopAbs import TopAbs_EDGE
+    from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Edge
+
+    explorer = TopExp_Explorer(box, TopAbs_EDGE)
+    while explorer.More():
+        edge = TopoDS_Edge(explorer.Current())
+        chamfer.Add(chamfer_size, edge)
+        explorer.Next()
+
+    # Получение финальной формы с фасками
+    chamfered_box = chamfer.Shape()
+    return chamfered_box
+
 
 
 #    display = threejs_renderer.ThreejsRenderer()
