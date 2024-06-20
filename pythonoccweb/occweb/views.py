@@ -73,10 +73,14 @@ def inputCode(request):
                 shape = buildWrench()
             elif (description == "кирпич с 8 отверстиями"):
                 shape = buildBrick()
-            elif (description == "куб со стороной 10 с фаской"):
+            elif (description == "куб со стороной 30 с вертикальной фаской"):
                 shape = buildBoxWithFillet()
-            elif (description == "парабола"):
-                shape = buildParabola()
+            elif (description == "призма"):
+                shape = buildPrism()
+            elif (description == "деталь"):
+                shape = buildPart()
+            elif (description == "гайка на 10"):
+                shape = buildScrew()
             else:
                 shape = create_3d_shape(pythonOCCCode)
             my_renderer = CustomX3DomRenderer(path=os.path.join('static/'))
@@ -114,7 +118,7 @@ def generate_pythonocc_code(description):
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user",
-             "content": f"Generate code using pythonocc-core=7.8.1 version 7.8.1 to create a 3D figure described as follows:\n{description}\n. Assign resulted "
+             "content": f"Generate code using pythonocc-core version 7.8.1 to create a 3D figure described as follows:\n{description}\n. Assign resulted "
                         f"TopoDS Shape to variable with name = figure. View only clean code without comments"}
         ]
     )

@@ -1,7 +1,52 @@
-{% extends "base.html" %}
+{% extends "reference.html" %}
 
 {% block title %}title{% endblock %}
 
 {% block content %}
-<h1>Help</h1>
+<h1 class="text-center">Руководство пользователя</h1>
+<br>
+<div class="accordion d-grid gap-2 col-10 mx-auto" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        Как построить фигуру
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <pre>Для того, чтобы построить фигуру, задайте ее описание в поле "Введите запрос".
+        Описание должно четко соответствовать цели и включать только названия фигур и размеры (в формате вещественного числа). Например:
+        - Куб со стороной 10.0
+        - Цилиндр с радиусом 5.0 и высотой 12.0
+        - Куб со стороной 10.0 минус куб со стороной 5.0
+        Для построения фигуры нажмите на кнопку "Построить". Будет отображена страница с трехмерным изображением фигуры. Изображением можно управлять: вращать, приближать, удалять</pre>
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        Отображение кода
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <pre>Для просмотра сгенерированного ChatGPT кода фигуры на странице с иозображением фигуры нажмите на кнопку "Code". Код фигуры будет отображен в раскрывшемся поле внизу.</pre>
+      </div>
+    </div>
+  </div>
+    <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+        Обработка и отображение ошибок
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <pre>В случае, если приложение не может построить фигуру по сгенерированному ChatGPT коду (например, если код содержит ошибки), оно построит последнюю успешную фигуру.
+        Посмотреть код фигуры, которую не удалось построить, можно нажав на кнопку "Code". Посмотреть полученную ошибку можно, нажав на кнопку "Error"</pre>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,8 +1,10 @@
-from math import pi
+from math import pi, cos, sin
 
 import numpy as np
 from OCC.Core.BRep import BRep_Builder
 from OCC.Core.Geom2d import Geom2d_TrimmedCurve
+from OCC.Core.GeomAPI import GeomAPI_PointsToBSpline
+from OCC.Core.TColgp import TColgp_Array1OfPnt
 from OCC.Core.TopAbs import TopAbs_EDGE, TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
@@ -159,46 +161,76 @@ def buildBrick():
 
 
 def buildBoxWithFillet():
-    # Создание куба со стороной 10
-    length = 10
-    box = BRepPrimAPI_MakeBox(length, length, length).Shape()
+    Boxmain = BRepPrimAPI_MakeBox(30.0, 30.0, 30.0).Shape()
 
-    # Создание объекта фаски
-    chamfer = BRepFilletAPI_MakeChamfer(box)
+    # скругление Boxmain
+    rake1 = BRepFilletAPI_MakeFillet(Boxmain)
+    expl = list(TopologyExplorer(Boxmain).edges())
+    rake1.Add(8, 8, expl[0])
+    rake1.Add(8, 8, expl[2])
+    rake1.Add(8, 8, expl[4])
+    rake1.Add(8, 8, expl[6])
+    rake1.Build()
+    evolved_Boxmain = rake1.Shape()
+    return evolved_Boxmain
 
-    # Задание параметров фаски (размер фаски)
-    chamfer_size = 1.0
+def buildPrism():
+    # the bspline profile
+    array = TColgp_Array1OfPnt(1, 5)
+    array.SetValue(1, gp_Pnt(0, 0, 0))
+    array.SetValue(2, gp_Pnt(1, 2, 0))
+    array.SetValue(3, gp_Pnt(2, 3, 0))
+    array.SetValue(4, gp_Pnt(4, 3, 0))
+    array.SetValue(5, gp_Pnt(5, 5, 0))
+    bspline = GeomAPI_PointsToBSpline(array).Curve()
+    profile = BRepBuilderAPI_MakeEdge(bspline).Edge()
 
-    # Применение фаски ко всем ребрам куба
-    from OCC.Core.TopExp import TopExp_Explorer
-    from OCC.Core.TopAbs import TopAbs_EDGE
-    from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Edge
+    # the linear path
+    starting_point = gp_Pnt(0.0, 0.0, 0.0)
+    end_point = gp_Pnt(0.0, 0.0, 6.0)
+    vec = gp_Vec(starting_point, end_point)
+    path = BRepBuilderAPI_MakeEdge(starting_point, end_point).Edge()
 
-    explorer = TopExp_Explorer(box, TopAbs_EDGE)
-    while explorer.More():
-        edge = TopoDS_Edge(explorer.Current())
-        chamfer.Add(chamfer_size, edge)
-        explorer.Next()
+    # extrusion
+    prism = BRepPrimAPI_MakePrism(profile, vec).Shape()
+    return prism
 
-    # Получение финальной формы с фасками
-    chamfered_box = chamfer.Shape()
-    return chamfered_box
+def buildScrew():
+    # Параметры гайки
+    outer_diameter = 20  # Внешний диаметр гайки
+    inner_diameter = 10  # Внутренний диаметр гайки
+    height = 10  # Высота гайки
+    num_sides = 6  # Количество сторон гайки
 
-def buildParabola():
-    # P is the vertex point
-    # P and D give the axis of symmetry
-    # 6 is the focal length of the parabola
-    a_pnt = gp_Pnt2d(2, 3)
-    a_dir = gp_Dir2d(4, 5)
-    an_ax = gp_Ax22d(a_pnt, a_dir, True)
-    para = gp_Parab2d(an_ax, 6)
+    # Создание внешнего цилиндра
+    outer_cylinder = BRepPrimAPI_MakeCylinder(outer_diameter / 2, height).Shape()
 
-    aParabola = GCE2d_MakeParabola(para)
-    gParabola = aParabola.Value()
+    # Создание внутреннего цилиндра (резьбы)
+    inner_cylinder = BRepPrimAPI_MakeCylinder(inner_diameter / 2, height + 2).Shape()
 
-    aTrimmedCurve = Geom2d_TrimmedCurve(gParabola, -100, 100, True)
+    # Вырезание внутреннего цилиндра из внешнего
+    nut_shape = BRepAlgoAPI_Cut(outer_cylinder, inner_cylinder).Shape()
 
-    return aTrimmedCurve
+    # Создание многогранника для вырезания граней гайки
+    points = []
+    for i in range(num_sides):
+        angle = 2 * 3.14159 * i / num_sides
+        x = outer_diameter / 2 * 1.1 * cos(angle)
+        y = outer_diameter / 2 * 1.1 * sin(angle)
+        points.append(gp_Pnt(x, y, 0))
+
+    polygon = BRepBuilderAPI_MakePolygon()
+    for point in points:
+        polygon.Add(point)
+    polygon.Close()
+
+    # Экструзия полигона
+    face = BRepBuilderAPI_MakeFace(polygon.Wire())
+    prism = BRepPrimAPI_MakePrism(face.Face(), gp_Vec(0, 0, height))
+
+    # Вырезание граней гайки
+    nut_shape = BRepAlgoAPI_Cut(nut_shape, prism.Shape()).Shape()
+    return nut_shape
 
 
 #    display = threejs_renderer.ThreejsRenderer()
